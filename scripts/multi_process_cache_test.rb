@@ -28,15 +28,17 @@ module MultiProcessCacheTest
         new_val = Rails.cache.increment(key, 1)
         # Some stores return nil if the key does not exist; initialize to 1 then
         if new_val.nil?
-          Rails.cache.write(key, 1)
+          # Store as raw so Redis contains a plain integer string and increment works
+          Rails.cache.write(key, 1, raw: true)
           new_val = 1
         end
       rescue StandardError
         # Some cache stores might not implement increment. fallback to read/write (racy).
-        val = Rails.cache.read(key).to_i
-        val += 1
-        Rails.cache.write(key, val)
-        new_val = val
+  val = Rails.cache.read(key).to_i
+  val += 1
+  # Ensure we write raw to keep a plain numeric representation
+  Rails.cache.write(key, val, raw: true)
+  new_val = val
       end
 
       puts "#{Time.now.iso8601} PID=#{Process.pid} iter=#{i+1} value=#{new_val}"
