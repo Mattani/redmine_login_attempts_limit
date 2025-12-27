@@ -11,14 +11,14 @@ DELAY=${3:-0.05}
 echo "Starting two concurrent runners: key=${KEY} iterations=${ITERATIONS} delay=${DELAY}"
 
 # Start first in background
-TEST_CACHE=${TEST_CACHE:-} REDIS_URL=${REDIS_URL:-} RAILS_ENV=test bundle exec rails runner "load 'plugins/redmine_login_attempts_limit/scripts/multi_process_cache_test.rb'; ARGV.replace(['${KEY}','${ITERATIONS}','${DELAY}']); exec(ARGV)" &
+TEST_CACHE=${TEST_CACHE:-} REDIS_URL=${REDIS_URL:-} RAILS_ENV=test bundle exec rails runner "require_relative './plugins/redmine_login_attempts_limit/scripts/multi_process_cache_test.rb'; MultiProcessCacheTest.run('${KEY}','${ITERATIONS}','${DELAY}')" &
 PID1=$!
 
 # Small stagger
 sleep 0.2
 
 # Start second in foreground
-TEST_CACHE=${TEST_CACHE:-} REDIS_URL=${REDIS_URL:-} RAILS_ENV=test bundle exec rails runner "load 'plugins/redmine_login_attempts_limit/scripts/multi_process_cache_test.rb'; ARGV.replace(['${KEY}','${ITERATIONS}','${DELAY}']); exec(ARGV)"
+TEST_CACHE=${TEST_CACHE:-} REDIS_URL=${REDIS_URL:-} RAILS_ENV=test bundle exec rails runner "require_relative './plugins/redmine_login_attempts_limit/scripts/multi_process_cache_test.rb'; MultiProcessCacheTest.run('${KEY}','${ITERATIONS}','${DELAY}')"
 
 wait $PID1
 
