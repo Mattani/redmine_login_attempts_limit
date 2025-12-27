@@ -69,13 +69,13 @@ class InvalidAccountTest < ActiveSupport::TestCase
     fred.clear('Fred')
     assert_nil Rails.cache.read(cache_key('fred'))
 
-    # remaining users still present
-    assert_equal 2, [Rails.cache.read(cache_key('admin')), Rails.cache.read(cache_key('barneym'))].compact.length
+  # remaining users still present
+  assert_equal 2, [Rails.cache.read(cache_key('bob')), Rails.cache.read(cache_key('barneym'))].compact.length
 
-    bob.clear('Bob')
-    barney_m.clear('BarneyM')
-    assert_nil Rails.cache.read(cache_key('admin'))
-    assert_nil Rails.cache.read(cache_key('barneym'))
+  bob.clear('Bob')
+  barney_m.clear('BarneyM')
+  assert_nil Rails.cache.read(cache_key('bob'))
+  assert_nil Rails.cache.read(cache_key('barneym'))
   end
 
   def test_clean_expired
