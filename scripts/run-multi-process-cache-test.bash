@@ -1,7 +1,19 @@
 #!/usr/bin/env bash
 # Run two concurrent processes of the multi_process_cache_test.rb script to observe shared cache behavior.
+# Pre-requisites:
+#  - Redis server running (if using Redis)
+#  - Rails environment set to test
+#  - Run the script in the Redmine root directory
 # Usage:
-# TEST_CACHE=redis REDIS_URL=redis://localhost:6379/1 RAILS_ENV=test ./scripts/run-multi-process-cache-test.bash multi-test 100 0.05
+#  Executing using MemoryStore:
+#    RAILS_ENV=test ./plugins/redmine_login_attempts_limit/scripts/run-multi-process-cache-test.bash
+#    or
+#    TEST_CACHE=memory RAILS_ENV=test ./plugins/redmine_login_attempts_limit/scripts/run-multi-process-cache-test.bash
+#  Result to be FAIL because the MemoryStore does not share cache between processes.
+#
+#  Executing using Redis:
+#    TEST_CACHE=redis REDIS_URL=redis://localhost:6379/1 RAILS_ENV=test ./plugins/redmine_login_attempts_limit/scripts/run-multi-process-cache-test.bash
+#  Result to be PASS because the Redis store shares cache between processes.
 
 set -e
 KEY=${1:-multi-test}
@@ -88,7 +100,7 @@ ACTUAL=$(TEST_CACHE=${TEST_CACHE:-} REDIS_URL=${REDIS_URL:-} MPC_KEY=${KEY} RAIL
 	rescue StandardError
 		# ignore cache init errors
 	end
-	puts (Rails.cache.read(ENV['MPC_KEY']).to_i rescue 0)
+	puts (Rails.cache.read(ENV['MPC_KEY'], raw: true).to_i rescue 0)
 ")
 
 echo "Actual final cache value for key='${KEY}': ${ACTUAL}"
