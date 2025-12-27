@@ -2,6 +2,12 @@
 
 require File.expand_path('../../../test/test_helper', __dir__)
 require_relative 'authenticate_user'
+begin
+	require File.expand_path('../../lib/redmine_login_attempts_limit', __dir__)
+rescue LoadError
+	# fallback to relative require
+	require_relative '../lib/redmine_login_attempts_limit'
+end
 
 # Ensure tests use a deterministic cache. Use TEST_CACHE=redis to test
 # multi-process shared cache behavior with Redis (set REDIS_URL accordingly).

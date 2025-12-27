@@ -5,10 +5,10 @@
 # processes can share lock information.
 ##
 class InvalidAccount
-  include RedmineLoginAttemptsLimit::PluginSettings
+  include ::RedmineLoginAttemptsLimit::PluginSettings
 
   class << self
-    include RedmineLoginAttemptsLimit::PluginSettings
+  include ::RedmineLoginAttemptsLimit::PluginSettings
 
     # With cache-based storage entries expire automatically. Keep this
     # method for compatibility; it is a no-op unless the cache adapter
@@ -102,7 +102,7 @@ class InvalidAccount
 
   def write_cache(key, value)
     # Use expires_in so entries are removed after configured block_minutes
-    Rails.cache.write(cache_key_for(key), value, expires_in: minutes * 60)
+  Rails.cache.write(cache_key_for(key), value, expires_in: minutes * 60)
   end
 
   def add_user_key_to_cache
@@ -118,6 +118,11 @@ class InvalidAccount
 
   def limit
     setting[:attempts_limit].to_i
+  end
+
+  # Instance-level helper delegating to class-level settings
+  def minutes
+    self.class.send(:minutes)
   end
 
   def user_registered?
