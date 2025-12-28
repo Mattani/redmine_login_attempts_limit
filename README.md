@@ -38,6 +38,15 @@ You need a running Redmine instance in order to install the plugin. If you need 
 Instructions for the installation of this plugin can be found in the [official documentation](https://circle.xmera.de/projects/redmine-login-attempts-limit/wiki) on
 [xmera Circle - the community website of xmera](https://circle.xmera.de).
 
+After placing the plugin in the Redmine `plugins` directory, install bundle dependencies in the Redmine root:
+
+```bash
+cd /path/to/redmine
+bundle install --without development test
+```
+
+If you intend to run multiple Redmine processes that share lock state via `Rails.cache`, ensure you configure a Redis cache in your Redmine production environment (see `docs/REDIS_SETUP.md`).
+
 ## Changelog
 
 All notable changes to this plugin will be reported in the [changelog](https://circle.xmera.de/projects/redmine-login-attempts-limit/repository/redmine_login_attempts_limit/entry/CHANGELOG.md).
@@ -59,6 +68,7 @@ More information about xmera Omnia can be found at [xmera](https://xmera.de).
 * Lock status storage: The plugin was modified to store lock/invalid-account status in `Rails.cache` (instead of in-process memory) so multiple Redmine processes can share lock state.
 * Test environment: the plugin was tested on RedMica 3.2.4.stable (based on Redmine 6.0.6.devel).
 * Advanced Plugin Helper: the upstream `Advanced Plugin Helper 0.4.z` is not compatible with Redmine 6; this repository uses a forked helper at [kid2407/advanced_plugin_helper](https://github.com/kid2407/advanced_plugin_helper) for Redmine 6 compatibility.
+* Note: Sharing lock state across multiple processes requires a shared cache (e.g. Redis).
 
 ## Support
 
