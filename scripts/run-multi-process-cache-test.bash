@@ -28,81 +28,65 @@ EXPECTED=$((ITERATIONS * PROCESSES))
 
 echo "Expected final value (if cache is shared): ${EXPECTED}"
 
-# Initialize the cache key to 0 so repeated script runs don't accumulate
-TEST_CACHE=${TEST_CACHE:-} REDIS_URL=${REDIS_URL:-} MPC_KEY=${KEY} RAILS_ENV=test bundle exec rails runner "
-	begin
-		if ENV['TEST_CACHE'] == 'redis'
-			redis_url = ENV['REDIS_URL'] || 'redis://localhost:6379/1'
-			Rails.cache = ActiveSupport::Cache::RedisCacheStore.new(url: redis_url)
-		else
-			Rails.cache = ActiveSupport::Cache::MemoryStore.new
-		end
-	rescue StandardError
-		# ignore cache init errors
+# Helper: run a ruby snippet under the Rails runner with the same TEST_CACHE/REDIS_URL env
+run_ruby() {
+	local ruby_code="$1"
+	# Pipe the ruby_code to rails runner via stdin (use '-' to force reading from stdin)
+	# Ensure MPC_KEY is provided to the runner (use existing MPC_KEY env or fall back to script KEY)
+	local mpc_env="${MPC_KEY:-${KEY}}"
+	TEST_CACHE=${TEST_CACHE:-} REDIS_URL=${REDIS_URL:-} MPC_KEY=${mpc_env} RAILS_ENV=test printf "%s" "$ruby_code" | bundle exec rails runner -
+}
+
+# Common Ruby snippet to initialize Rails.cache according to TEST_CACHE/REDIS_URL
+# stored as a heredoc to preserve quoting and newlines.
+RUBY_CACHE_INIT=$(cat <<'RUBYCODE'
+begin
+	if ENV['TEST_CACHE'] == 'redis'
+		redis_url = ENV['REDIS_URL'] || 'redis://localhost:6379/1'
+		Rails.cache = ActiveSupport::Cache::RedisCacheStore.new(url: redis_url)
+	else
+		Rails.cache = ActiveSupport::Cache::MemoryStore.new
 	end
-		# write as raw so Redis stores a plain integer string
-		Rails.cache.write(ENV['MPC_KEY'], 0, raw: true)
-"
+rescue StandardError
+	# ignore cache init errors
+end
+RUBYCODE
+)
+
+# Helper: common cache initialization used by workers and final reader
+# Initialize the cache key to 0 so repeated script runs don't accumulate
+init_cache_key() {
+	run_ruby "${RUBY_CACHE_INIT}
+key = ENV['MPC_KEY'] || '${KEY}'
+Rails.cache.write(key, 0, raw: true)"
+}
+
+init_cache_key
 
 # Start first in background
-TEST_CACHE=${TEST_CACHE:-} REDIS_URL=${REDIS_URL:-} RAILS_ENV=test bundle exec rails runner "
-	# configure cache for runner according to TEST_CACHE
-	begin
-		if ENV['TEST_CACHE'] == 'redis'
-			redis_url = ENV['REDIS_URL'] || 'redis://localhost:6379/1'
-			Rails.cache = ActiveSupport::Cache::RedisCacheStore.new(url: redis_url)
-		else
-			Rails.cache = ActiveSupport::Cache::MemoryStore.new
-		end
-	rescue StandardError
-		# ignore if ActiveSupport cache classes are unavailable
-	end
-	script = Rails.root.join('plugins','redmine_login_attempts_limit','scripts','multi_process_cache_test.rb').to_s
-	require script
-	MultiProcessCacheTest.run('${KEY}','${ITERATIONS}','${DELAY}')
-" &
+run_ruby "${RUBY_CACHE_INIT}
+script = Rails.root.join('plugins','redmine_login_attempts_limit','scripts','multi_process_cache_test.rb').to_s
+require script
+MultiProcessCacheTest.run('${KEY}','${ITERATIONS}','${DELAY}')" &
 PID1=$!
 
 # Small stagger
 sleep 0.2
 
 # Start second in foreground
-TEST_CACHE=${TEST_CACHE:-} REDIS_URL=${REDIS_URL:-} RAILS_ENV=test bundle exec rails runner "
-	# configure cache for runner according to TEST_CACHE
-	begin
-		if ENV['TEST_CACHE'] == 'redis'
-			redis_url = ENV['REDIS_URL'] || 'redis://localhost:6379/1'
-			Rails.cache = ActiveSupport::Cache::RedisCacheStore.new(url: redis_url)
-		else
-			Rails.cache = ActiveSupport::Cache::MemoryStore.new
-		end
-	rescue StandardError
-		# ignore if ActiveSupport cache classes are unavailable
-	end
-	script = Rails.root.join('plugins','redmine_login_attempts_limit','scripts','multi_process_cache_test.rb').to_s
-	require script
-	MultiProcessCacheTest.run('${KEY}','${ITERATIONS}','${DELAY}')
-"
+run_ruby "${RUBY_CACHE_INIT}
+script = Rails.root.join('plugins','redmine_login_attempts_limit','scripts','multi_process_cache_test.rb').to_s
+require script
+MultiProcessCacheTest.run('${KEY}','${ITERATIONS}','${DELAY}')"
 
 wait $PID1
 
 echo "Both processes finished."
 
 # Read actual cache value using same cache settings
-ACTUAL=$(TEST_CACHE=${TEST_CACHE:-} REDIS_URL=${REDIS_URL:-} MPC_KEY=${KEY} RAILS_ENV=test bundle exec rails runner "
-	begin
-		if ENV['TEST_CACHE'] == 'redis'
-			redis_url = ENV['REDIS_URL'] || 'redis://localhost:6379/1'
-			Rails.cache = ActiveSupport::Cache::RedisCacheStore.new(url: redis_url)
-		else
-			Rails.cache = ActiveSupport::Cache::MemoryStore.new
-		end
-	rescue StandardError
-		# ignore cache init errors
-	end
-	puts (Rails.cache.read(ENV['MPC_KEY'], raw: true).to_i rescue 0)
-")
-
+ACTUAL=$(TEST_CACHE=${TEST_CACHE:-} REDIS_URL=${REDIS_URL:-} MPC_KEY=${KEY} RAILS_ENV=test run_ruby "${RUBY_CACHE_INIT}
+key = ENV['MPC_KEY'] || '${KEY}'
+puts (Rails.cache.read(key, raw: true).to_i rescue 0)")
 echo "Actual final cache value for key='${KEY}': ${ACTUAL}"
 
 if [ "${ACTUAL}" -eq "${EXPECTED}" ] 2>/dev/null; then
