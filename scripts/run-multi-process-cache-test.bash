@@ -91,6 +91,8 @@ echo "Actual final cache value for key='${KEY}': ${ACTUAL}"
 
 if [ "${ACTUAL}" -eq "${EXPECTED}" ] 2>/dev/null; then
 	echo "VERDICT: PASS (shared cache behavior)"
+	exit 0
 else
-	echo "VERDICT: FAIL (not shared or unexpected value)"
+	echo "VERDICT: FAIL (not shared or unexpected value)" >&2
+	exit 1
 fi
