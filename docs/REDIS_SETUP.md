@@ -10,7 +10,7 @@ This plugin uses `Rails.cache` to store lock/invalid-account status. When you wa
 
 ## Example steps
 
-1. Install Redis (OS-specific). 
+1. Install Redis (OS-specific).
 
 Example on Debian/Ubuntu:
 

@@ -109,7 +109,7 @@ Redmine a little bit safer!
 
 ## License
 
-Copyright &copy; 2025 Mattani (<https://github.com/Mattani>).
+Copyright &copy; 2025 Mattani (<https://github.com/Mattani>).  
 Copyright &copy; 2021-2023 Liane Hampe (<liaham@xmera.de>), xmera Solutins GmbH.  
 Copyright &copy; 2020 Stefan Zieger (<https://github.com/saz>), Regio Helden.  
 Copyright &copy; 2016-2017 midnightSuyama (<https://github.com/midnightSuyama>).  
