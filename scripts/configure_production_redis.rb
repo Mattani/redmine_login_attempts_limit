@@ -3,11 +3,20 @@
 
 require 'fileutils'
 
-ROOT = File.expand_path('..', __dir__) # repo/scripts -> repo
-path = File.join(ROOT, 'config', 'environments', 'production.rb')
+ROOT = File.expand_path('..', __dir__) # plugin root (repo)
 
-unless File.exist?(path)
-  $stderr.puts "ERROR: production.rb not found at #{path}"
+# Prefer current working directory as Redmine root, fall back to plugin path
+cwd_path = File.join(Dir.pwd, 'config', 'environments', 'production.rb')
+plugin_path = File.join(ROOT, 'config', 'environments', 'production.rb')
+
+if File.exist?(cwd_path)
+  path = cwd_path
+  origin = :cwd
+elsif File.exist?(plugin_path)
+  path = plugin_path
+  origin = :plugin
+else
+  $stderr.puts "ERROR: production.rb not found in current directory (#{cwd_path}) or plugin path (#{plugin_path})"
   exit 1
 end
 
@@ -72,3 +81,8 @@ end
 
 File.write(path, lines.join)
 puts "Updated #{path}. Backup created at #{backup}"
+if origin == :cwd
+  puts "Script was run from Redmine root (#{Dir.pwd}) and updated production.rb there."
+else
+  puts "Script updated production.rb inside the plugin at #{plugin_path}. If you intended to modify your Redmine app, run this script from the Redmine root: \n  ruby plugins/redmine_login_attempts_limit/scripts/configure_production_redis.rb"
+end

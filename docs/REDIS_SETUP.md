@@ -81,15 +81,15 @@ For more detailed platform-specific instructions, see the [Redis official docs](
 
 ## Automatic configuration script
 
-If you prefer a small helper to apply the Redis cache configuration to a Redmine `production.rb`, a script is included at `scripts/configure_production_redis.rb`.
+If you prefer a small helper to apply the Redis cache configuration to a Redmine `production.rb`, a script is included at `plugins/redmine_login_attempts_limit/scripts/configure_production_redis.rb`.
 
-- Location: `scripts/configure_production_redis.rb` (run from the plugin repository root).
+- Location: `plugins/redmine_login_attempts_limit/scripts/configure_production_redis.rb` (run from the Redmine application root).
 - What it does: creates a timestamped backup of `config/environments/production.rb`, ensures `config.action_controller.perform_caching = true`, and inserts or replaces a `config.cache_store = :redis_cache_store, { ... }` block.
 - Usage:
 
 ```bash
-# from plugin repository root
-ruby scripts/configure_production_redis.rb
+# from Redmine application root
+ruby plugins/redmine_login_attempts_limit/scripts/configure_production_redis.rb
 ```
 
 - Warning: The script tries to be idempotent but cannot handle every possible `production.rb` layout; please check the backup file (created alongside the original) and review changes before deploying.
