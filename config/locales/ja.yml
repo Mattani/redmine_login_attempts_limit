@@ -1,0 +1,12 @@
+ja:
+  label_redmine_login_attempts_limit: ログイン試行回数の制限
+  label_redmine_login_attempts_limit_description: ログイン失敗回数を制限し、ユーザーをブロックする
+  attempts_limit: 許可する試行回数
+  block_minutes: ブロック時間（分）
+  blocked_notification: 管理者にメールを送信
+  button_reset_counter: カウンターをリセット
+  errors:
+    blocked: アクセスがブロックされました。しばらくしてから再度お試しください。
+  mailer:
+    account_blocked_subject: ログイン試行回数超過 » アクセスがブロックされました
+    account_blocked_body: "%{login} のアクセスがブロックされました"
