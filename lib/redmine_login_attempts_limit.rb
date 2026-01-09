@@ -4,6 +4,12 @@
 # Initialize the plugins setup.
 #
 module RedmineLoginAttemptsLimit
+  module Extensions
+  end
+
+  module Overrides
+  end
+
   class << self
     def setup
       klasses.each do |klass|
