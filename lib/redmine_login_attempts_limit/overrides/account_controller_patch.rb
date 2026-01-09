@@ -1,11 +1,9 @@
 # frozen_string_literal: true
 
-module RedmineLoginAttemptsLimit
-  module Overrides
-    ##
-    # Overrides methods of AccountController.
-    #
-    module AccountControllerPatch
+##
+# Overrides methods of AccountController.
+#
+module RedmineLoginAttemptsLimit::Overrides::AccountControllerPatch
       def self.prepended(base)
         base.send(:prepend, InstanceMethods)
       end
@@ -78,6 +76,4 @@ module RedmineLoginAttemptsLimit
           setting['blocked_notification']
         end
       end
-    end
-  end
 end

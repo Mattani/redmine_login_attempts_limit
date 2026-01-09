@@ -1,12 +1,10 @@
 # frozen_string_literal: true
 
-module RedmineLoginAttemptsLimit
-  module Extensions
-    ##
-    # Adds a further delivery method for imform admins when a
-    # user is blocked.
-    #
-    module MailerPatch
+##
+# Adds a further delivery method for imform admins when a
+# user is blocked.
+#
+module RedmineLoginAttemptsLimit::Extensions::MailerPatch
       def self.included(base)
         base.extend(ClassMethods)
         base.include(InstanceMethods)
@@ -37,5 +35,4 @@ module RedmineLoginAttemptsLimit
         end
       end
     end
-  end
 end
