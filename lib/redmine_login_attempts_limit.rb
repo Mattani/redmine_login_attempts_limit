@@ -38,11 +38,11 @@ module RedmineLoginAttemptsLimit
   end
 end
 
+# Others (load first as it's used by patches)
+require_relative 'redmine_login_attempts_limit/plugin_settings'
+
 # Extensions
 require_relative 'redmine_login_attempts_limit/extensions/mailer_patch'
 
 # Overrides
 require_relative 'redmine_login_attempts_limit/overrides/account_controller_patch'
-
-# Others
-require_relative 'redmine_login_attempts_limit/plugin_settings'
