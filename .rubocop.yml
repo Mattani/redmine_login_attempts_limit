@@ -15,8 +15,9 @@ AllCops:
     - '**/test/**/*'
     - '**/db/migrate/*'
     - 'db/schema.rb'
+    - 'scripts/*'
 
-require:
+plugins:
   - rubocop-performance
   - rubocop-rails
 
@@ -43,6 +44,10 @@ Style/Documentation:
   Enabled: false
 
 Style/Encoding:
+  Enabled: false
+
+# Zeitwerk requires compact style for autoloading
+Style/ClassAndModuleChildren:
   Enabled: false
 
 Layout/TrailingWhitespace:
