@@ -8,25 +8,21 @@ class InvalidAccount
   include ::RedmineLoginAttemptsLimit::PluginSettings
 
   class << self
-  include ::RedmineLoginAttemptsLimit::PluginSettings
+    include ::RedmineLoginAttemptsLimit::PluginSettings
 
     # With cache-based storage entries expire automatically. Keep this
     # method for compatibility; it is a no-op unless the cache adapter
     # supports wildcard deletions.
     def clean_expired
       # Some cache stores support delete_matched; attempt cleanup if available.
-      if Rails.cache.respond_to?(:delete_matched)
-        Rails.cache.delete_matched(cache_key_prefix + '*')
-      end
+      Rails.cache.delete_matched("#{cache_key_prefix}*") if Rails.cache.respond_to?(:delete_matched)
       nil
     end
 
     # Clear all cached invalid account entries. Best-effort: requires
     # cache adapter to implement wildcard deletion.
     def clear
-      if Rails.cache.respond_to?(:delete_matched)
-        Rails.cache.delete_matched(cache_key_prefix + '*')
-      end
+      Rails.cache.delete_matched("#{cache_key_prefix}*") if Rails.cache.respond_to?(:delete_matched)
       nil
     end
 
@@ -102,7 +98,7 @@ class InvalidAccount
 
   def write_cache(key, value)
     # Use expires_in so entries are removed after configured block_minutes
-  Rails.cache.write(cache_key_for(key), value, expires_in: minutes * 60)
+    Rails.cache.write(cache_key_for(key), value, expires_in: minutes * 60)
   end
 
   def add_user_key_to_cache

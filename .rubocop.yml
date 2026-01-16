@@ -15,8 +15,9 @@ AllCops:
     - '**/test/**/*'
     - '**/db/migrate/*'
     - 'db/schema.rb'
+    - 'scripts/*'
 
-require:
+plugins:
   - rubocop-performance
   - rubocop-rails
 
@@ -45,6 +46,10 @@ Style/Documentation:
 Style/Encoding:
   Enabled: false
 
+# Zeitwerk requires compact style for autoloading
+Style/ClassAndModuleChildren:
+  Enabled: false
+
 Layout/TrailingWhitespace:
   AllowInHeredoc: true
 
@@ -54,3 +59,6 @@ Rails/ApplicationRecord:
 Naming/VariableNumber:
   Exclude:
     - 'test/**/*'
+
+Gemspec/RequireMFA:
+  Enabled: false

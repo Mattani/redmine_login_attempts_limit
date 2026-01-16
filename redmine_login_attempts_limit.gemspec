@@ -6,6 +6,8 @@ Gem::Specification.new do |spec|
   spec.authors = ['midnightSuyama, RegioHelden, xmera-circle, Mattani']
   spec.summary = 'Redmine plugin to limit login attempts and block accounts after failed attempts'
 
+  spec.required_ruby_version = '>= 2.7.0'
+
   # Runtime dependencies
-  spec.add_runtime_dependency 'redis', '>= 4.0.1'
+  spec.add_dependency 'redis', '>= 4.0.1'
 end
