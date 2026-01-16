@@ -59,3 +59,6 @@ Rails/ApplicationRecord:
 Naming/VariableNumber:
   Exclude:
     - 'test/**/*'
+
+Gemspec/RequireMFA:
+  Enabled: false
