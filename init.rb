@@ -19,3 +19,6 @@ Redmine::Plugin.register :redmine_login_attempts_limit do
 end
 
 RedmineLoginAttemptsLimit.setup
+
+# Initialize hook
+RedmineLoginAttemptsLimit::Hooks::AccountControllerHook.instance

@@ -35,11 +35,6 @@ module RedmineLoginAttemptsLimit::Overrides::AccountControllerPatch
       Mailer.deliver_account_blocked(user) if notification? && user.present?
     end
 
-    def successful_authentication(user)
-      invalid_account.clear(user.login)
-      super
-    end
-
     def user
       @user = User.find_by(login: username)
     end
