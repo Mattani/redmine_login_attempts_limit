@@ -7,6 +7,9 @@ module RedmineLoginAttemptsLimit
   module Extensions
   end
 
+  module Hooks
+  end
+
   module Overrides
   end
 
@@ -43,6 +46,9 @@ require_relative 'redmine_login_attempts_limit/plugin_settings'
 
 # Extensions
 require_relative 'redmine_login_attempts_limit/extensions/mailer_patch'
+
+# Hooks
+require_relative 'redmine_login_attempts_limit/hooks/account_controller_hook'
 
 # Overrides
 require_relative 'redmine_login_attempts_limit/overrides/account_controller_patch'
